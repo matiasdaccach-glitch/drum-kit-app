@@ -9,17 +9,24 @@ body {
   place-items: center;
   background: #151820;
   color: white;
-  font: 16px system-ui;
+  font-family: Arial, sans-serif;
 }
 
 .app {
-  padding: 30px;
+  width: min(90%, 600px);
+  padding: 32px 20px;
   text-align: center;
+}
+
+.app p {
+  color: #bdc5d4;
+  line-height: 1.5;
 }
 
 .pads {
   display: grid;
   grid-template-columns: repeat(3, minmax(80px, 130px));
+  justify-content: center;
   gap: 14px;
   margin-top: 28px;
 }
@@ -30,25 +37,32 @@ body {
   border-radius: 18px;
   background: #252c3b;
   color: white;
-  font: 700 1.2rem system-ui;
+  font-size: 1.4rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: 0.1s;
+  transition: transform 0.1s, background-color 0.1s;
 }
 
 .pad span {
   display: block;
   margin-top: 8px;
   color: #aab4c8;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: normal;
+}
+
+.pad:hover {
+  border-color: #ff9e44;
 }
 
 .pad.active,
 .pad:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
   background: #ff9e44;
   color: #171717;
 }
 
-p {
-  color: #bdc5d4;
+.pad.active span,
+.pad:active span {
+  color: #171717;
 }

@@ -1,92 +1,55 @@
-let audioContext;
+const pads = document.querySelectorAll(".pad");
 
-function play(sound) {
-  const AudioContextClass =
-    window.AudioContext || window.webkitAudioContext;
+// Los nombres deben coincidir con los archivos dentro de la carpeta sounds.
+const sounds = {
+  kick: new Audio("sounds/kick.wav"),
+  clap: new Audio("sounds/clap.wav"),
+  hihat: new Audio("sounds/hihat.wav"),
+  boom: new Audio("sounds/boom.wav"),
+  openhat: new Audio("sounds/openhat.wav"),
+  ride: new Audio("sounds/ride.wav")
+};
 
-  if (!AudioContextClass) {
-    alert("Tu navegador no admite Web Audio API.");
+function playSound(soundName) {
+  const sound = sounds[soundName];
+
+  if (!sound) {
     return;
   }
 
-  audioContext ??= new AudioContextClass();
-
-  const now = audioContext.currentTime;
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-
-  if (sound === "kick") {
-    oscillator.frequency.setValueAtTime(150, now);
-    oscillator.frequency.exponentialRampToValueAtTime(45, now + 0.18);
-    gain.gain.setValueAtTime(0.9, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    oscillator.start(now);
-    oscillator.stop(now + 0.23);
-    return;
-  }
-
-  if (["snare", "clap", "hat", "ride"].includes(sound)) {
-    const duration = sound === "ride" ? 0.25 : 0.12;
-    const length = audioContext.sampleRate * duration;
-    const buffer = audioContext.createBuffer(
-      1,
-      length,
-      audioContext.sampleRate
-    );
-    const data = buffer.getChannelData(0);
-
-    for (let i = 0; i < data.length; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-
-    const noise = audioContext.createBufferSource();
-    const noiseGain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-
-    noise.buffer = buffer;
-    filter.type = "highpass";
-    filter.frequency.value = sound === "hat" ? 6500 : 1000;
-
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.connect(audioContext.destination);
-
-    noiseGain.gain.setValueAtTime(sound === "ride" ? 0.25 : 0.5, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    noise.start();
-    return;
-  }
-
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(sound === "tom" ? 180 : 240, now);
-  oscillator.frequency.exponentialRampToValueAtTime(70, now + 0.2);
-  gain.gain.setValueAtTime(0.6, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-  oscillator.start(now);
-  oscillator.stop(now + 0.25);
+  // Reinicia el sonido para que se pueda tocar varias veces seguidas.
+  sound.currentTime = 0;
+  sound.play();
 }
 
-function hit(pad) {
-  play(pad.dataset.sound);
+function playPad(pad) {
+  const soundName = pad.dataset.sound;
+
+  playSound(soundName);
   pad.classList.add("active");
 
   setTimeout(() => {
     pad.classList.remove("active");
-  }, 100);
+  }, 150);
 }
 
-document.querySelectorAll(".pad").forEach((pad) => {
-  pad.addEventListener("click", () => hit(pad));
+// Reproduce el sonido al hacer clic en un botón.
+pads.forEach((pad) => {
+  pad.addEventListener("click", () => {
+    playPad(pad);
+  });
 });
 
+// También reproduce el sonido al presionar la tecla correspondiente.
 document.addEventListener("keydown", (event) => {
-  if (event.repeat) return;
+  if (event.repeat) {
+    return;
+  }
 
   const key = event.key.toLowerCase();
   const pad = document.querySelector(`[data-key="${key}"]`);
 
-  if (pad) hit(pad);
+  if (pad) {
+    playPad(pad);
+  }
 });
